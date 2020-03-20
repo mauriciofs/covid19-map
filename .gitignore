@@ -108,3 +108,9 @@ dist
 
 # Serverless directories
 .serverless
+
+# Vs code custom settings folder
+.vscode
+
+# AWS credentials config file
+.aws_config.json

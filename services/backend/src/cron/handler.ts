@@ -1,6 +1,7 @@
 import moment from 'moment';
 import axios from 'axios';
 import readXlsxFile from 'read-excel-file'
+import Helpers from '../lib/Helpers';
 
 interface TestEvent {
   date?: string;
@@ -44,6 +45,7 @@ async function getData(date: string, extension: string): Promise<Response> {
 }
 
 export async function handler(event?: TestEvent): Promise<boolean> {
+  const {client} = await Helpers.prepareLambda();
   const date = event?.date ?? moment().format('YYYY-MM-DD');
   let response = await getData(date, 'xlsx');
   // Try again but with xls
@@ -56,7 +58,19 @@ export async function handler(event?: TestEvent): Promise<boolean> {
   // Remove first column with just name information
   for (const [isoDate, day, month, year, cases, deaths, country, geoId] of xls) {
     console.log(isoDate, day, month, year, cases, deaths, country, geoId);
+    if (geoId.length > 2) {
+      continue;
+    }
+
+    const query = `
+      INSERT INTO covid19.cases (date, cases, deaths, country, geo_id)
+      VALUES ('${moment(isoDate).format('YYYY-MM-DD')}', '${cases}', '${deaths}', '${country}', '${geoId}')
+      ON CONFLICT ON CONSTRAINT cases_pk_2
+      DO NOTHING;
+    `;
+    await client.query(query);
   }
 
+  await client.end();
   return true;
 }

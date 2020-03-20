@@ -4,7 +4,7 @@
   "description": "Covid 19 worldwide cases map",
   "main": "index.js",
   "scripts": {
-    "test": "mocha -c -b -t --no-timeouts -r ts-node/register --exit test/*.spec.ts",
+    "test": "mocha -c -b --no-timeouts -r ts-node/register --exit test/*.spec.ts",
     "lint": "eslint src --ext .ts,.tsx"
   },
   "repository": {
@@ -20,6 +20,7 @@
   "devDependencies": {
     "@types/mocha": "^7.0.2",
     "@types/mysql": "^2.15.9",
+    "@types/pg": "^7.14.3",
     "aws-lambda": "^1.0.5",
     "chai": "^4.2.0",
     "mocha": "^7.1.1",
@@ -30,7 +31,6 @@
   "dependencies": {
     "axios": "^0.19.2",
     "moment": "^2.24.0",
-    "mysql": "^2.18.1",
     "read-excel-file": "^4.0.6"
   }
 }
