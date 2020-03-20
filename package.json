@@ -1,0 +1,44 @@
+{
+  "name": "covid19-map",
+  "version": "1.0.0",
+  "description": "Covid 19 worldwide cases map",
+  "main": "index.js",
+  "scripts": {
+    "bootstrap": "lerna bootstrap --use-workspaces",
+    "start": "lerna run start --stream --parallel",
+    "build": "lerna run build --stream",
+    "build:test": "lerna run build:test --stream",
+    "build:dev": "lerna run build:dev --stream",
+    "lint": "lerna run lint --stream",
+    "lint:fix": "lerna run lint:fix --stream",
+    "test": "lerna run test --stream",
+    "release-dev": "lerna run build:dev --stream && lerna run release-dev --stream",
+    "release-test": "lerna run build:test --stream && lerna run release-test --stream",
+    "release-production": "lerna run build --stream && lerna run release-production --stream"
+  },
+  "workspaces": [
+    "services/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mauriciofs/covid19-map.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mauriciofs/covid19-map/issues"
+  },
+  "homepage": "https://github.com/mauriciofs/covid19-map#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.24.0",
+    "@typescript-eslint/parser": "^2.24.0",
+    "eslint": "^6.8.0",
+    "eslint-loader": "^3.0.3",
+    "eslint-plugin-react": "^7.19.0",
+    "eslint-plugin-react-hooks": "^2.5.1",
+    "lerna": "^3.20.2",
+    "ts-node": "^8.6.2",
+    "typescript": "^3.8.3",
+    "typescript-eslint": "0.0.1-alpha.0"
+  }
+}
