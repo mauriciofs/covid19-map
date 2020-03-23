@@ -15,7 +15,7 @@ export const schema = `
     }
 
     type Query {
-        # cases: [TotalCase]!
+        cases: [TotalCase]!
         trend(geo_id: String): [Case]
     }
 `;

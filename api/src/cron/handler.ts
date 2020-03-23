@@ -27,7 +27,7 @@ async function getData(date: string, extension?: string): Promise<Response> {
       data: response.data,
     };
   } catch (error) {
-    console.error('ERROR', error.response);
+    console.error('ERROR', error.response.statusText);
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
@@ -49,7 +49,7 @@ async function getData(date: string, extension?: string): Promise<Response> {
 }
 
 export async function handler(event?: TestEvent): Promise<boolean> {
-  const {connection} = await Helpers.prepareLambda();
+  const connection = await Helpers.prepareLambda();
   const date = event?.date ?? moment().format('YYYY-MM-DD');
   const response = await getData(date);
   // Try again but with xls
@@ -69,7 +69,7 @@ export async function handler(event?: TestEvent): Promise<boolean> {
 
     const query = `
       INSERT INTO covid19.cases (date, cases, deaths, country, geo_id)
-      VALUES ('${moment(isoDate).format('YYYY-MM-DD')}', '${cases}', '${deaths}', '${country}', '${geoId}')
+      VALUES ('${moment(isoDate).format('YYYY-MM-DD')}', '${cases}', '${deaths}', REPLACE('${country}', '_', ' '), '${geoId}')
       ON CONFLICT ON CONSTRAINT cases_pk_2
       DO UPDATE SET cases = EXCLUDED.cases, deaths = EXCLUDED.deaths
     `;

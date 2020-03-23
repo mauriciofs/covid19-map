@@ -1,6 +1,7 @@
 import * as AWS from 'aws-sdk';
 import { createConnection, Connection } from 'typeorm';
 import 'reflect-metadata';
+import Cases from '../entity/Cases';
 
 interface DbSecret {
     username: string;
@@ -12,28 +13,33 @@ interface DbSecret {
     dbInstanceIdentifier: string;
 }
 
+let connection: Connection;
+
 export default abstract class Helpers {
-    public static async prepareLambda(): Promise<{connection: Connection}> {
-        AWS.config.loadFromPath(`../../.aws_config.json`);
+    public static async prepareLambda(): Promise<Connection> {
+        // AWS.config.loadFromPath(`../../.aws_config.json`);
         console.log('PREPARING ENVIRONMENT...');
         // Set ENV vars
-        if (!process.env.DB_PASSWORD) {
+        if (!process.env.PGPASSWORD) {
             await Helpers.setEnvVars();
         }
-        // const client = new Client();
-        const connection = await createConnection({
-            type: 'postgres',
-            host: process.env.PGHOST,
-            port: Number(process.env.PGPORT),
-            username: process.env.PGUSER,
-            password: process.env.PGPASSWORD,
-            database: process.env.PGDATABASE,
-            entities: [
-                `../entity/*.ts`,
-            ],
-        });
+        if (!connection) {
+            connection = await createConnection({
+                type: 'postgres',
+                host: process.env.PGHOST,
+                port: Number(process.env.PGPORT),
+                username: process.env.PGUSER,
+                password: process.env.PGPASSWORD,
+                database: process.env.PGDATABASE,
+                schema: 'covid19',
+                logging: true,
+                entities: [
+                    Cases,
+                ],
+            });   
+        }
 
-            return {connection};
+        return connection;
     }
 
      /**

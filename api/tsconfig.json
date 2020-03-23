@@ -1,5 +1,5 @@
 {
-    "extends": "../../tsconfig.json",
+    "compileOnSave": true,
     "compilerOptions": {
         "esModuleInterop": true,
         "sourceMap": true,
@@ -7,9 +7,5 @@
         "target": "ES5",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true
-    },
-    "exclude": [
-        "node_modules",
-        ".history"
-    ]
+    }
 }

@@ -1,9 +1,9 @@
 import {Entity, PrimaryColumn, Column, BaseEntity} from 'typeorm';
 
 @Entity()
-export class Cases extends BaseEntity {
+export default class Cases extends BaseEntity {
 
-    @PrimaryColumn()
+    @PrimaryColumn('date')
     date: string;
 
     @Column()
