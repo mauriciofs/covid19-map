@@ -27,6 +27,14 @@ provider:
   versionFunctions: false
   profile: admin
 
+custom: 
+  webpack:
+    includeModules: 
+      forceInclude:
+        - babel-runtime
+      forceExclude:
+        - aws-sdk
+
 # Service AWS Resources
 resources:
   # Set log group retention period to 2 days
@@ -40,6 +48,7 @@ resources:
 
 plugins:
   - serverless-webpack
+  - serverless-offline
 
 package:
   exclude:
@@ -50,4 +59,11 @@ package:
 
 functions:
   pullData:
-    handler: handler.handler
+    handler: src/cron/handler.handler
+  graphql:
+    handler: src/graphql.handler
+    events:
+    - http:
+        path: graphql
+        method: post
+        cors: true

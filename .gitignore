@@ -114,3 +114,6 @@ dist
 
 # AWS credentials config file
 .aws_config.json
+
+# Webpack files
+.webpack

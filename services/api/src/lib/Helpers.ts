@@ -1,5 +1,6 @@
 import * as AWS from 'aws-sdk';
-import { Client } from 'pg';
+import { createConnection, Connection } from 'typeorm';
+import 'reflect-metadata';
 
 interface DbSecret {
     username: string;
@@ -12,17 +13,27 @@ interface DbSecret {
 }
 
 export default abstract class Helpers {
-    public static async prepareLambda(): Promise<{client: Client}> {
-        AWS.config.loadFromPath(`${__dirname}/../../.aws_config.json`);
+    public static async prepareLambda(): Promise<{connection: Connection}> {
+        AWS.config.loadFromPath(`../../.aws_config.json`);
         console.log('PREPARING ENVIRONMENT...');
         // Set ENV vars
         if (!process.env.DB_PASSWORD) {
             await Helpers.setEnvVars();
         }
-        const client = new Client();
-        await client.connect()
+        // const client = new Client();
+        const connection = await createConnection({
+            type: 'postgres',
+            host: process.env.PGHOST,
+            port: Number(process.env.PGPORT),
+            username: process.env.PGUSER,
+            password: process.env.PGPASSWORD,
+            database: process.env.PGDATABASE,
+            entities: [
+                `../entity/*.ts`,
+            ],
+        });
 
-        return {client};
+            return {connection};
     }
 
      /**

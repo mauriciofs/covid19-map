@@ -8,13 +8,13 @@ interface TestEvent {
 }
 
 interface Response {
-  retry: boolean;
+  status: number;
   data: BlobPart[];
 }
 
-async function getData(date: string, extension: string): Promise<Response> {
+async function getData(date: string, extension?: string): Promise<Response> {
   try {
-    const url = `https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-${date}.${extension}`;
+    const url = `https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-${date}.${extension || 'xlsx'}`;
     console.log(`REQUESTING ${url}`);
     const response = await axios({
       method: 'get',
@@ -23,7 +23,7 @@ async function getData(date: string, extension: string): Promise<Response> {
     });
 
     return {
-      retry: false,
+      status: 200,
       data: response.data,
     };
   } catch (error) {
@@ -33,8 +33,12 @@ async function getData(date: string, extension: string): Promise<Response> {
       // that falls out of the range of 2xx
       if (error.response.status === 404) {
         // Try again with different format
+        if (!extension) {
+          return await getData(date, 'xls');
+        }
+
         return {
-          retry: true,
+          status: 404,
           data: null,
         }
       }
@@ -45,12 +49,13 @@ async function getData(date: string, extension: string): Promise<Response> {
 }
 
 export async function handler(event?: TestEvent): Promise<boolean> {
-  const {client} = await Helpers.prepareLambda();
+  const {connection} = await Helpers.prepareLambda();
   const date = event?.date ?? moment().format('YYYY-MM-DD');
-  let response = await getData(date, 'xlsx');
+  const response = await getData(date);
   // Try again but with xls
-  if (response.retry) {
-    response = await getData(date, 'xls');
+  if (response.status === 404) {
+    // response = await getData(date, 'xls');
+    return false;
   }
   const { data } = response;
   const xls: string[][] = await readXlsxFile(data);
@@ -66,11 +71,11 @@ export async function handler(event?: TestEvent): Promise<boolean> {
       INSERT INTO covid19.cases (date, cases, deaths, country, geo_id)
       VALUES ('${moment(isoDate).format('YYYY-MM-DD')}', '${cases}', '${deaths}', '${country}', '${geoId}')
       ON CONFLICT ON CONSTRAINT cases_pk_2
-      DO NOTHING;
+      DO UPDATE SET cases = EXCLUDED.cases, deaths = EXCLUDED.deaths
     `;
-    await client.query(query);
+    await connection.manager.query(query);
   }
 
-  await client.end();
+  await connection.close();
   return true;
 }
