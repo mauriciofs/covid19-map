@@ -25,6 +25,7 @@ provider:
   runtime: nodejs12.x
   region: 'eu-west-1'
   versionFunctions: false
+  stage: development
   profile: admin
 
 custom: 
@@ -49,6 +50,7 @@ resources:
 plugins:
   - serverless-webpack
   - serverless-offline
+  - serverless-dotenv-plugin
 
 package:
   exclude:

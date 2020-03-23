@@ -1,5 +1,5 @@
 import * as AWS from 'aws-sdk';
-import { createConnection, Connection } from 'typeorm';
+import { createConnection, Connection, getConnection } from 'typeorm';
 import 'reflect-metadata';
 import Cases from '../entity/Cases';
 
@@ -13,36 +13,49 @@ interface DbSecret {
     dbInstanceIdentifier: string;
 }
 
-let connection: Connection;
-
 export default abstract class Helpers {
     public static async prepareLambda(): Promise<Connection> {
-        // AWS.config.loadFromPath(`../../.aws_config.json`);
         console.log('PREPARING ENVIRONMENT...');
+        AWS.config.update({
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        });
+
         // Set ENV vars
         if (!process.env.PGPASSWORD) {
             await Helpers.setEnvVars();
         }
-        if (!connection) {
-            connection = await createConnection({
-                type: 'postgres',
-                host: process.env.PGHOST,
-                port: Number(process.env.PGPORT),
-                username: process.env.PGUSER,
-                password: process.env.PGPASSWORD,
-                database: process.env.PGDATABASE,
-                schema: 'covid19',
-                logging: true,
-                entities: [
-                    Cases,
-                ],
-            });   
-        }
+
+        const connection = Helpers.getDbConnection() ?? await createConnection({
+            type: 'postgres',
+            host: process.env.PGHOST,
+            port: Number(process.env.PGPORT),
+            username: process.env.PGUSER,
+            password: process.env.PGPASSWORD,
+            database: process.env.PGDATABASE,
+            schema: 'covid19',
+            logging: true,
+            entities: [
+                Cases,
+            ],
+        });
 
         return connection;
     }
 
-     /**
+    public static getDbConnection(): Connection {
+        try {
+            const connection = getConnection('default');
+            console.log('CONNECTION DEFAULT EXISTS');
+
+            return connection;
+        } catch (error) {
+            console.log('CONNECTION DEFAULT DOES NOT EXISTS');
+            return null;
+        }
+    }
+
+    /**
      * Set necessary environment vars
      * @param endpoint - AWS secret manager endpoint
      * @param secretName - AWS secret name to retrieve
