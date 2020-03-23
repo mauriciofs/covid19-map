@@ -19,7 +19,6 @@ export class Database {
             console.log(`Database.getConnection()-using existing connection ...`);
             connection = this.connectionManager.get(CONNECTION_NAME);
 
-            console.log(connection.options.entities);
             if (!connection.isConnected) {
                 console.log('CONNECTING');
                 connection = await connection.connect();

@@ -52,9 +52,8 @@ export async function handler(event?: TestEvent): Promise<boolean> {
   const connection = await Helpers.prepareLambda();
   const date = event?.date ?? moment().format('YYYY-MM-DD');
   const response = await getData(date);
-  // Try again but with xls
+  // File to parse not found
   if (response.status === 404) {
-    // response = await getData(date, 'xls');
     return false;
   }
   const { data } = response;
