@@ -3,9 +3,9 @@ import { Connection } from 'typeorm';
 
 export const resolvers = {
     Query: {
-        trend: (_, args) => {
+        trend: (_, args, ctx) => {
             console.log('ASDASDA');
-            return Cases.find({where: {geo_id: args.geo_id}, order: {date: 'ASC'}})
+            return (ctx.connection as Connection).getRepository(Cases).find({where: {geo_id: args.geo_id}, order: {date: 'ASC'}})
         },
         cases: async (root, args, ctx) => {
             console.log('PORRA');

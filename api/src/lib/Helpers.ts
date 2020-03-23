@@ -1,7 +1,7 @@
 import * as AWS from 'aws-sdk';
-import { createConnection, Connection, getConnection } from 'typeorm';
+import { Connection, getConnection } from 'typeorm';
 import 'reflect-metadata';
-import Cases from '../entity/Cases';
+import { Database } from './Database';
 
 interface DbSecret {
     username: string;
@@ -25,34 +25,9 @@ export default abstract class Helpers {
         if (!process.env.PGPASSWORD) {
             await Helpers.setEnvVars();
         }
+        const db = new Database();
 
-        const connection = Helpers.getDbConnection() ?? await createConnection({
-            type: 'postgres',
-            host: process.env.PGHOST,
-            port: Number(process.env.PGPORT),
-            username: process.env.PGUSER,
-            password: process.env.PGPASSWORD,
-            database: process.env.PGDATABASE,
-            schema: 'covid19',
-            logging: true,
-            entities: [
-                Cases,
-            ],
-        });
-
-        return connection;
-    }
-
-    public static getDbConnection(): Connection {
-        try {
-            const connection = getConnection('default');
-            console.log('CONNECTION DEFAULT EXISTS');
-
-            return connection;
-        } catch (error) {
-            console.log('CONNECTION DEFAULT DOES NOT EXISTS');
-            return null;
-        }
+        return await db.getConnection();
     }
 
     /**
