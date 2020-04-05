@@ -10,7 +10,6 @@ describe('Graphql api test', () => {
 
             expect(result.statusCode).to.be.equal(200);
             expect(body.data.cases).to.be.not.empty;
-            expect(body.data.cases[0].country).to.be.equal('China');
             done();
         };
 
